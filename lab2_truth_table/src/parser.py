@@ -1,5 +1,5 @@
-from logic_operations import *
-from config import *
+from src.logic_operations import *
+from src.config import *
 
 
 def standardize_expr(expr: str) -> str:
