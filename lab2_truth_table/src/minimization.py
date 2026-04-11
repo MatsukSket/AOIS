@@ -209,11 +209,11 @@ def print_karnaugh_map(table: list, variables: list) -> None:
 
     primes_dnf = get_prime_implicants_karnaugh_map(table, True)
     min_cover_dnf = get_min_cover(primes_dnf, get_bin_implicants(table, True))
-    print(f"\nРезультат по Карте Карно (МДНФ): {format_string_formula(min_cover_dnf, variables, True)}")
+    print(f"\nМДНФ по Карте Карно : {format_string_formula(min_cover_dnf, variables, True)}")
 
     primes_knf = get_prime_implicants_karnaugh_map(table, False)
     min_cover_knf = get_min_cover(primes_knf, get_bin_implicants(table, False))
-    print(f"Результат по Карте Карно (МКНФ): {format_string_formula(min_cover_knf, variables, False)}")
+    print(f"МКНФ по Карте Карно: {format_string_formula(min_cover_knf, variables, False)}")
 
 
 def get_grid_cells(row_codes: list, col_codes: list, r_start: int, c_start: int, h: int, w: int) -> list:
@@ -233,11 +233,11 @@ def get_grid_cells(row_codes: list, col_codes: list, r_start: int, c_start: int,
 
 def get_karnaugh_map_rectangles(table: list, is_dnf: bool = True) -> list:
     """Поиск прямоугольных областей (импликант) на карте Карно."""
-    target = 1 if is_dnf else 0
-    val_map = {"".join(map(str, row[:-1])): row[-1] for row in table}
-
     if not table:
         return []
+
+    target = 1 if is_dnf else 0
+    val_dict = {"".join(map(str, row[:-1])): row[-1] for row in table}
 
     num_vars = len(table[0]) - 1
     row_vars_count = num_vars // 2
@@ -260,14 +260,14 @@ def get_karnaugh_map_rectangles(table: list, is_dnf: bool = True) -> list:
             for r in range(R):
                 for c in range(C):
                     cells = get_grid_cells(row_codes, col_codes, r, c, h, w)
-                    if all(val_map.get(cell, -1) == target for cell in cells):
+                    if all(val_dict.get(cell) == target for cell in cells):
                         valid_rects.append(set(cells))
 
     prime_rects = []
     for rect in valid_rects:
         is_prime = True
         for other_rect in valid_rects:
-            if rect != other_rect and rect.issubset(other_rect):
+            if rect != other_rect and rect.uissbset(other_rect):
                 is_prime = False
                 break
 
