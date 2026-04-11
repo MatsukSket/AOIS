@@ -206,3 +206,103 @@ def print_karnaugh_map(table: list, variables: list) -> None:
             line += str(val).center(col_width) + " | "
 
         print(line)
+
+    primes_dnf = get_prime_implicants_karnaugh_map(table, True)
+    min_cover_dnf = get_min_cover(primes_dnf, get_bin_implicants(table, True))
+    print(f"\nРезультат по Карте Карно (МДНФ): {format_string_formula(min_cover_dnf, variables, True)}")
+
+    primes_knf = get_prime_implicants_karnaugh_map(table, False)
+    min_cover_knf = get_min_cover(primes_knf, get_bin_implicants(table, False))
+    print(f"Результат по Карте Карно (МКНФ): {format_string_formula(min_cover_knf, variables, False)}")
+
+
+def get_grid_cells(row_codes: list, col_codes: list, r_start: int, c_start: int, h: int, w: int) -> list:
+    """Собирает ячейки прямоугольника размером h на w."""
+    R = len(row_codes)
+    C = len(col_codes)
+    cells = []
+
+    for i in range(h):
+        for j in range(w):
+            r = (r_start + i) % R
+            c = (c_start + j) % C
+            cells.append(row_codes[r] + col_codes[c])
+
+    return cells
+
+
+def get_karnaugh_map_rectangles(table: list, is_dnf: bool = True) -> list:
+    """Поиск прямоугольных областей (импликант) на карте Карно."""
+    target = 1 if is_dnf else 0
+    val_map = {"".join(map(str, row[:-1])): row[-1] for row in table}
+
+    if not table:
+        return []
+
+    num_vars = len(table[0]) - 1
+    row_vars_count = num_vars // 2
+    col_vars_count = num_vars - row_vars_count
+
+    row_codes = generate_gray_code(row_vars_count)
+    col_codes = generate_gray_code(col_vars_count)
+
+    R = len(row_codes)
+    C = len(col_codes)
+
+    valid_rects = []
+    sizes = [1, 2, 4, 8]
+
+    for h in sizes:
+        if h > R: continue
+        for w in sizes:
+            if w > C: continue
+
+            for r in range(R):
+                for c in range(C):
+                    cells = get_grid_cells(row_codes, col_codes, r, c, h, w)
+                    if all(val_map.get(cell, -1) == target for cell in cells):
+                        valid_rects.append(set(cells))
+
+    prime_rects = []
+    for rect in valid_rects:
+        is_prime = True
+        for other_rect in valid_rects:
+            if rect != other_rect and rect.issubset(other_rect):
+                is_prime = False
+                break
+
+        if is_prime and rect not in prime_rects:
+            prime_rects.append(rect)
+
+    return prime_rects
+
+
+def rect_to_mask(rect_cells: set, num_vars: int) -> str:
+    """Формиует бинарную маску для прямоугольника."""
+    cells_list = list(rect_cells)
+    mask = ""
+
+    for i in range(num_vars):
+        bits_at_i = set(cell[i] for cell in cells_list)
+
+        if len(bits_at_i) == 1:
+            mask += bits_at_i.pop()
+        else:
+            mask += "-"
+
+    return mask
+
+
+def get_prime_implicants_karnaugh_map(table: list, is_dnf: bool = True) -> list:
+    """Возвращает список импликант, масок."""
+    if not table:
+        return []
+
+    num_vars = len(table[0]) - 1
+    prime_rects = get_karnaugh_map_rectangles(table, is_dnf)
+
+    implicants = []
+    for rect in prime_rects:
+        implicants.append(rect_to_mask(rect, num_vars))
+
+    return list(set(implicants))

@@ -93,6 +93,5 @@ def run_analysis():
     print_karnaugh_map(matrix, logic_vars)
 
 
-
 if __name__ == "__main__":
     run_analysis()
