@@ -7,7 +7,7 @@ from src.analisis import get_zhegalkin, get_post_classes
 from src.calculus import get_fictive_variables, get_mixed_derivative
 from src.minimization import calculate_method, tabular_calc_method, print_karnaugh_map
 
-
+# ((a&b)|(!a&c)|(b&c))&(d|!d)
 def run_analysis():
     user_input = input("Укажите логическое выражение: ")
 
