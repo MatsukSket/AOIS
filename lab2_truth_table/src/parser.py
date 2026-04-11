@@ -99,17 +99,3 @@ def evaluate_rpn(rpn: list[str], var_values: dict[str, int]) -> int:
                 stack.append(l_eq(left, right))
 
     return stack[0]
-
-
-# === Блок для тестирования ===
-if __name__ == '__main__':
-    expr = "a&b&!c|c"
-    print(f"выражение: {expr}")
-
-    rpn = get_rpn(expr)
-    print(f"опз: {rpn}")
-
-    # Тестовый набор: a=1, b=0, c=1, d=0, e=0
-    test_vars = {'a': 1, 'b': 0, 'c': 1, 'd': 0, 'e': 0}
-    result = evaluate_rpn(rpn, test_vars)
-    print(f"значение {test_vars}: {result}")

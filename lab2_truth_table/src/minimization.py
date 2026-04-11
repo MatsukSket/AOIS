@@ -142,7 +142,6 @@ def tabular_calc_method(table: list, prime_impls: list, variables: list, is_dnf:
 
     header = f"{'Импликанта':<12} | " + sep.join(target_bin)
     print(header)
-    print("-" * len(header))
 
     for prime in prime_impls:
         marks = []
@@ -189,14 +188,13 @@ def print_karnaugh_map(table: list, variables: list) -> None:
 
     val_map = {"".join(map(str, row[:-1])): row[-1] for row in table}
 
-    print(f"\n--- Карта Карно для ({''.join(row_names)} \\ {''.join(col_names)}) ---")
+    print(f"--- Карта Карно для ({''.join(row_names)} \\ {''.join(col_names)}) ---")
 
     col_width = max(len(col_codes[0]), 3)
     margin = " " * (max(len(row_names), 2) + 2)
 
     header = margin + "| " + " | ".join(code.center(col_width) for code in col_codes) + " |"
     print(header)
-    print("-" * len(header))
 
     for r_code in row_codes:
         row_label = r_code if r_code else "f"
@@ -208,4 +206,3 @@ def print_karnaugh_map(table: list, variables: list) -> None:
             line += str(val).center(col_width) + " | "
 
         print(line)
-    print("-" * len(header))

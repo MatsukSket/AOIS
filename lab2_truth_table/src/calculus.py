@@ -41,17 +41,3 @@ def get_fictive_variables(vars_list: list[str], table: list[list[int]]) -> list[
             fictive.append(var)
 
     return fictive
-
-
-if __name__ == '__main__':
-    from parser import get_rpn
-    from truth_table import generate_truth_table, extract_variables
-
-    expr = "a&(b|!b)"
-    print(f"Функция: {expr}\n")
-
-    table = generate_truth_table(expr)
-    vars_list = extract_variables(get_rpn(expr))
-
-    fictitious = get_fictive_variables(vars_list, table)
-    print(f"Фиктивные переменные: {', '.join(fictitious) if fictitious else 'Нет'}")

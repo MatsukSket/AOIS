@@ -54,18 +54,4 @@ def get_index_form(table: list[list[int]]) -> int:
     return int(binary_str, 2)
 
 
-if __name__ == '__main__':
-    from parser import get_rpn
-    from truth_table import generate_truth_table, extract_variables
 
-    expr = "a&b&!c|c"
-    print(f"Функция: {expr}\n")
-
-    table = generate_truth_table(expr)
-    vars_list = extract_variables(get_rpn(expr))
-
-    print(f"СДНФ: {get_sdnf(vars_list, table)}")
-    print(f"СКНФ: {get_sknf(vars_list, table)}")
-    print(f"Числовая СДНФ: {get_numeric_sdnf(table)}")
-    print(f"Числовая СКНФ: {get_numeric_sknf(table)}")
-    print(f"Индексная форма: {get_index_form(table)}")
