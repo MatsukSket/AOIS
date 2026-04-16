@@ -69,7 +69,7 @@ def calculate_method(table: list, variables: list, is_dnf: bool=True) -> list:
 
 
 def covers(implicant, minterm):
-    """Проверяет, перекрывает ли импликант (с '-') конкретный бинарный набор."""
+    """Проверяет, перекрывает ли импликант конкретный бинарный набор."""
     for i in range(len(implicant)):
         if implicant[i] != "-" and implicant[i] != minterm[i]:
             return False
@@ -163,15 +163,11 @@ def generate_gray_code(bits):
     if bits == 1:
         return ["0", "1"]
     previous = generate_gray_code(bits - 1)
-    # Зеркальное отражение: добавляем 0 к прямой последовательности и 1 к обратной
     return ["0" + code for code in previous] + ["1" + code for code in reversed(previous)]
 
 
 def print_karnaugh_map(table: list, variables: list) -> None:
-    """
-    Отрисовывает карту Карно для 1-5 переменных.
-    Использует код Грея для обеспечения соседства клеток по одному биту.
-    """
+    """Выводит карту Карно."""
     num_vars = len(variables)
     if num_vars < 1 or num_vars > 5:
         print(f"Карта Карно для {num_vars} переменных не поддерживается (доступно 1-5).")
@@ -216,23 +212,32 @@ def print_karnaugh_map(table: list, variables: list) -> None:
     print(f"МКНФ по Карте Карно: {format_string_formula(min_cover_knf, variables, False)}")
 
 
-def get_grid_cells(row_codes: list, col_codes: list, r_start: int, c_start: int, h: int, w: int) -> list:
-    """Собирает ячейки прямоугольника размером h на w."""
-    R = len(row_codes)
-    C = len(col_codes)
-    cells = []
+def get_valid_groups(gray_codes: list) -> list:
+    """Ищет группы импликантов."""
+    if not gray_codes:
+        return []
 
-    for i in range(h):
-        for j in range(w):
-            r = (r_start + i) % R
-            c = (c_start + j) % C
-            cells.append(row_codes[r] + col_codes[c])
+    bits = len(gray_codes[0])
+    groups = []
 
-    return cells
+    def generate_masks(n):
+        if n == 0: return [""]
+        return [char + rest for char in "01-" for rest in generate_masks(n - 1)]
+
+    for mask in generate_masks(bits):
+        matched_indices = []
+        for i, code in enumerate(gray_codes):
+            if all(m == '-' or m == c for m, c in zip(mask, code)):
+                matched_indices.append(i)
+
+        if matched_indices:
+            groups.append(matched_indices)
+
+    return groups
 
 
 def get_karnaugh_map_rectangles(table: list, is_dnf: bool = True) -> list:
-    """Поиск прямоугольных областей (импликант) на карте Карно."""
+    """Поиск прямоугольных областей (наборов импликант) с учетом зеркальности."""
     if not table:
         return []
 
@@ -246,28 +251,26 @@ def get_karnaugh_map_rectangles(table: list, is_dnf: bool = True) -> list:
     row_codes = generate_gray_code(row_vars_count)
     col_codes = generate_gray_code(col_vars_count)
 
-    R = len(row_codes)
-    C = len(col_codes)
+    row_groups = get_valid_groups(row_codes)
+    col_groups = get_valid_groups(col_codes)
 
     valid_rects = []
-    sizes = [1, 2, 4, 8]
 
-    for h in sizes:
-        if h > R: continue
-        for w in sizes:
-            if w > C: continue
+    for r_group in row_groups:
+        for c_group in col_groups:
+            cells = []
+            for r in r_group:
+                for c in c_group:
+                    cells.append(row_codes[r] + col_codes[c])
 
-            for r in range(R):
-                for c in range(C):
-                    cells = get_grid_cells(row_codes, col_codes, r, c, h, w)
-                    if all(val_dict.get(cell) == target for cell in cells):
-                        valid_rects.append(set(cells))
+            if all(val_dict.get(cell) == target for cell in cells):
+                valid_rects.append(set(cells))
 
     prime_rects = []
     for rect in valid_rects:
         is_prime = True
         for other_rect in valid_rects:
-            if rect != other_rect and rect.uissbset(other_rect):
+            if rect != other_rect and rect.issubset(other_rect):
                 is_prime = False
                 break
 
@@ -278,7 +281,7 @@ def get_karnaugh_map_rectangles(table: list, is_dnf: bool = True) -> list:
 
 
 def rect_to_mask(rect_cells: set, num_vars: int) -> str:
-    """Формиует бинарную маску для прямоугольника."""
+    """Формиует маску для прямоугольника."""
     cells_list = list(rect_cells)
     mask = ""
 
