@@ -1,4 +1,3 @@
-# Импортируем нашу функцию минимизации (убедись, что файл minimizer.py лежит рядом)
 from minimizer import minimize_function
 
 
