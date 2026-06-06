@@ -65,9 +65,9 @@ class TestHashTable:
         assert ht.table[base_idx].c == 1
         assert ht.table[base_idx].t == 0
 
-        next_idx = ht.table[base_idx].p0
+        next_idx = ht.table[base_idx].next
         assert next_idx is not None
-        assert ht.table[next_idx].id == "АА1"
+        assert ht.table[next_idx].key == "АА1"
         assert ht.table[next_idx].t == 1
 
     def test_table_overflow(self):
@@ -124,7 +124,7 @@ class TestHashTable:
         ht.clear()
 
         assert ht.elements_count == 0
-        assert ht.table[0].id == ""
+        assert ht.table[0].key == ""
         assert ht.table[0].u == 0
 
     def test_get_load_factor(self, ht):
