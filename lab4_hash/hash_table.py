@@ -13,12 +13,11 @@ class HashEntry:
     def __init__(self):
         self.key = ""
         self.pi = ""
-        self.u = 0  # 1 = ячейка занята
-        self.d = 0  # 1 = ячейка удалена (Надгробие)
-        self.c = 0  # 1 = коллизия (цепочка началась)
-        self.t = 0  # 1 = хвост цепочки
-        self.next = None  # указатель на следующий индекс при коллизии
-
+        self.c = 0
+        self.u = 0
+        self.t = 0
+        self.d = 0
+        self.next = None
 
 class HashTable:
     def __init__(self, size: int = 20):
@@ -45,7 +44,6 @@ class HashTable:
 
         h = self.get_hash(key)
 
-        # Если идеальное место абсолютно свободно
         if self.table[h].u == 0 and self.table[h].d == 0:
             self.table[h].key = key
             self.table[h].pi = value
@@ -54,7 +52,6 @@ class HashTable:
             self.elements_count += 1
             return
 
-        # Иначе - коллизия! Идем по цепочке до конца, проверяя дубликаты
         curr = h
         while True:
             if self.table[curr].u == 1 and self.table[curr].key == key:
@@ -63,7 +60,6 @@ class HashTable:
                 break
             curr = self.table[curr].next
 
-        # Ищем строго пустую ячейку (u=0 и d=0) для размещения нового элемента
         free_idx = (h + 1) % self.size
         while (self.table[free_idx].u == 1 or self.table[free_idx].d == 1) and free_idx != h:
             free_idx = (free_idx + 1) % self.size
@@ -71,26 +67,19 @@ class HashTable:
         if free_idx == h:
             raise OverflowError("Нет свободных ячеек.")
 
-        # Записываем данные в найденную пустую ячейку
         self.table[free_idx].key = key
         self.table[free_idx].pi = value
         self.table[free_idx].u = 1
         self.table[free_idx].t = 1
         self.table[free_idx].next = None
-
-        # Связываем старый хвост цепочки с новым элементом
         self.table[curr].next = free_idx
         self.table[curr].t = 0
-
-        # Помечаем, что по исходному хешу случилась коллизия
         self.table[h].c = 1
-
         self.elements_count += 1
 
     def search(self, key: str) -> str:
         curr = self.get_hash(key)
 
-        # Прыгаем строго по ссылкам next
         while curr is not None:
             entry = self.table[curr]
             if entry.u == 1 and entry.key == key:
@@ -117,7 +106,6 @@ class HashTable:
         while curr is not None:
             entry = self.table[curr]
             if entry.u == 1 and entry.key == key:
-                # Логическое удаление: снимаем u, ставим d. Ссылку next НЕ ТРОГАЕМ!
                 entry.d = 1
                 entry.u = 0
                 self.elements_count -= 1

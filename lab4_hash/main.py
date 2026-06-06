@@ -57,11 +57,11 @@ class Menu:
         print("=" * 45)
 
     def insert(self):
-        key = input("Введите ключ (Фамилия): ").strip()
-        value = input("Введите значение (Данные): ").strip()
+        key = input("Введите ключ: ").strip()
+        value = input("Введите значение: ").strip()
         try:
             self.hash_table.insert(key, value)
-            print("Запись успешно добавлена.")
+            print("Запись добавлена.")
         except Exception as e:
             print(f"Ошибка при добавлении записи: {e}")
 
@@ -72,7 +72,7 @@ class Menu:
             v_val = self.hash_table.get_v_value(key)
             h_val = self.hash_table.get_hash(key)
             print(f"Значение для '{key}': {value}")
-            print(f"    (Информация: V = {v_val}, h(V) = {h_val})")
+            print(f"    (Информация: v = {v_val}, h(v) = {h_val})")
         except Exception as e:
             print(f"Ошибка: {e}")
 
@@ -81,7 +81,7 @@ class Menu:
         new_value = input("Введите новое значение: ").strip()
         try:
             self.hash_table.update(key, new_value)
-            print("Запись успешно обновлена.")
+            print("Запись обновлена.")
         except Exception as e:
             print(f"Ошибка при обновлении: {e}")
 
