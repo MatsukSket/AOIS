@@ -1,5 +1,0 @@
-.coverage
-.venv/
-pytest.ini
-.idea
-*/__pycache__/
